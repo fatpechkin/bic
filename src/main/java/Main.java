@@ -14,7 +14,6 @@ public class Main {
         if (lines == null) {
             return;
         }
-        lines = prepareStrings(lines);
         List<List<String>> result = processLines(lines);
         result = result.stream()
                 .filter(l -> l.size() > 1)
@@ -32,6 +31,7 @@ public class Main {
             this.index = index;
         }
     }
+
     private static HashSet<String> readInput(String inputFile) {
         HashSet<String> localLines = new HashSet<>();
         try (BufferedReader br = new BufferedReader(new FileReader(inputFile))) {
@@ -44,34 +44,6 @@ public class Main {
             e.printStackTrace();
         }
         return localLines;
-    }
-
-    private static List<String> prepareStrings(List<String> lines) {
-        lines = lines.stream()
-                .parallel()
-                .map(line -> line.split(";"))
-                .map(arr ->
-                        Arrays.stream(arr)
-                                .map(str -> {
-                                    if (str.charAt(0) == '\"') {
-                                        str = str.substring(1, str.length() - 1);
-                                    }
-                                    if (str.length() == 0) {
-                                        return "";
-                                    }
-                                    if (str.charAt(str.length() - 1) == '\"') {
-                                        str = str.substring(0, str.length() - 2);
-                                    }
-                                    if (str.contains("\"")) {
-                                        return "";
-                                    }
-                                    return str;
-                                })
-                                .filter(str -> str.length() > 0)
-                                .collect(Collectors.joining(";")))
-                .filter(line -> line.length() > 0)
-                .toList();
-        return lines;
     }
 
     private static List<List<String>> processLines(List<String> lines) {
@@ -93,6 +65,8 @@ public class Main {
                 String dot = lineDots[i];
                 if (dotMap.size() == i)
                     dotMap.add(new HashMap<>());
+                if ("".equals(dot.replaceAll("\"","").trim()))
+                    continue;
 
                 Map<String, Integer> currentIndex = dotMap.get(i);
                 Integer dotGroupNumber = currentIndex.get(dot);
